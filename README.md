@@ -16,22 +16,40 @@ gcc version 4.6.3 20120306 (Red Hat 4.6.3-2) (GCC)
 PROBLEM
 =======
 
-While the assignment requests completion using C++, you can complete it in C++,
-Java or C#. Another clarification is that you can assume there are no other
-pieces on the board.
- 
-Please submit your code, along with any instructions for building or executing
-your solution, archived into a ZIP (or other) file within the next week.
- 
-Please DO NOT send executables, ZIPped, or otherwise as our mail system will
-reject your email.
- 
-Please take your time with your solution. It must:
-    * work as per the assignment description
-    * be clear, readable and well structured
-    * exhibit your Object Oriented knowledge and abilities
-    * be something you're proud of
- 
+Given a standard 8x8 chessboard, design a C++ application that accepts two
+squares identified by algebraic chess notation. The first square is the
+starting position, and the second square is the ending position. Find the
+shortest sequence of valid moves to take a Knight piece from the starting
+position to the ending position. Each move must be a legal move by a Knight.
+For any two squares there may be more than one valid solution.
+
+Vital information
+-----------------
+Algebraic chess notation identifies each square with a letter from A to H and a
+number from 1 to 8. The columns are labeled with letters, and the rows are
+numbered. The lower left is A1.  A Knight moves two steps in a straight line
+from its starting position, and then one square to either the left right. A
+Knight can jump over other pieces. In the diagram to the right the Knight at
+position B8 can move either A6 or C6, while the Knight at position G8 can move
+to F6 or H6.
+
+Input
+-----
+Must be two squares identified in algebraic chess notation representing the
+starting and ending positions of the Knight. The two squares are separated by a
+space.
+
+Output
+------
+Must be a list of squares through which the Knight passes, in algebraic chess
+notation. This must include the ending position, but exclude the starting
+position.
+
+Example
+-------
+Test Input: A8 B7
+Expected Output: C7 B5 D6 B7
+
 SOLUTION
 ========
 
