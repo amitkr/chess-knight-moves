@@ -1,10 +1,12 @@
 #ifndef __CHESS_PIECE_H
 #define __CHESS_PIECE_H
 
-#include "Cell.h"
-#include "Color.h"
 #include <vector>
 #include <list>
+
+#include "Cell.h"
+#include "Color.h"
+#include "Graph.h"
 
 namespace Chess {
 
@@ -15,7 +17,8 @@ class Piece {
 
     public:
         virtual ~Piece() { }
-        virtual T_COORDS& findNextMove(T_COORDS &from, T_COORDS &to) = 0;
+        // virtual T_COORDS& findNextMove(T_COORDS &from, T_COORDS &to) = 0;
+        virtual std::vector<T_COORDS> findPath(T_COORDS &to) = 0;
         virtual std::vector<T_COORDS> findPath(T_COORDS &from, T_COORDS &to) = 0;
 };
 
@@ -59,10 +62,23 @@ class Knight : public Piece {
         }
         ~Knight() { }
 
-        virtual T_COORDS& findNextMove(T_COORDS &from, T_COORDS &to) {
+        // find the shortest path
+        virtual std::vector<T_COORDS> findPath(T_COORDS &from, T_COORDS &to) {
         }
 
-        virtual std::vector<T_COORDS> findPath(T_COORDS &from, T_COORDS &to) {
+        virtual std::vector<T_COORDS> findPath(T_COORDS &to) {
+            T_GRAPH_VECTOR gv;
+            gv.push_back(Chess::T_GRAPH_PAIR(T_COORDS(0, 0), pos));
+            for (K_MOVES::iterator it = moves.begin(); it != moves.end(); ++it) {
+                gv.push_back(Chess::T_GRAPH_PAIR(pos, (pos + *it)));
+            }
+
+            T_GRAPH g(gv);
+
+            std::vector<T_COORDS> vec;
+            vec.push_back(pos);
+
+            return vec;
         }
 
         K_MOVES getMoves() const {

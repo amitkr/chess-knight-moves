@@ -192,6 +192,8 @@ int main(int argc, char *argv[], char *argp[]) {
     // std::cout << *k << std::endl;
     // std::cout << k->getMoves() << std::endl;
     Chess::Knight k1(from);
+    Chess::T_COORDS toc = Chess::T_COORDS(to);
+    k1.findPath(toc);
 
     exit(EXIT_SUCCESS);
 }
