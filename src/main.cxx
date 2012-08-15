@@ -9,7 +9,9 @@
 #include <error.h>
 #include <errno.h>
 #include <ctype.h>
+
 #include "Board.h"
+#include "Piece.h"
 
 unsigned long ALPHABET_SIZE = ('Z' - 'A') + 1;
 
@@ -184,7 +186,12 @@ int main(int argc, char *argv[], char *argp[]) {
     
 
     // create a chess board
-    Chess::CHESS_BOARD *board = new Chess::CHESS_BOARD();
+    // Chess::CHESS_BOARD *board = new Chess::CHESS_BOARD();
+    // Chess::Knight k(Chess::T_COORDS(std::string(" de56  ")));
+    // Chess::Knight *k = new Chess::Knight(Chess::T_COORDS(std::string(from)));
+    // std::cout << *k << std::endl;
+    // std::cout << k->getMoves() << std::endl;
+    Chess::Knight k1(from);
 
     exit(EXIT_SUCCESS);
 }

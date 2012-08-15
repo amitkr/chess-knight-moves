@@ -40,6 +40,15 @@ int main() {
 
     T_COORDS_INT_64 co2(std::string(" bg56b  "));
     std::cout << co2 << std::endl;
+
+    T_COORDS_INT_64 co3(-1, -2);
+    T_COORDS_INT_64 co4(std::string("d3"));
+    std::cout
+        << "co3: " << co3 << std::endl
+        << "co4: " << co4 << std::endl
+        << "co4 + co3 " << (co4 + co3) << std::endl
+        << "co4 - co3 " << (co4 - co3) << std::endl;
+
 }
 
 #endif

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+
+#include <stdint.h>
 #include <stdlib.h>
 #include <error.h>
 #include <errno.h>
@@ -39,20 +41,35 @@ class Coords {
             x = cx;
             y = cy;
         }
-        Coords(char *s) { }
         Coords(const std::string &s) {
             size_t start = s.find_first_not_of(" \t\n\r");
             size_t end = s.find_last_not_of(" \t\n\r");
 
-            if (!isalpha(s[start])) {
+#ifdef DEBUG
+            std::cout
+                << "start = " << start
+                <<" end = " << end
+                << std:: endl;
+#endif
+
+            if (!isalpha(s[start]) ||
+                    start == std::string::npos ||
+                    end == std::string::npos)
+            {
                 throw BadCoordsException("wrong co-ordinates, file cannot be numeric");
             }
 
-            std::string str = s.substr(start, end);
+            std::string str = s.substr(start, end+1);
+
+#ifdef DEBUG
+            std::cout << "str = " << str << std::endl;
+#endif
             
+            /*
             if (str.find_first_of(" ") != std::string::npos) {
                 throw BadCoordsException("whitespace between file and rank coordinates.");
             }
+            */
 
             size_t split = str.find_first_of("1234567890");
 
@@ -71,6 +88,7 @@ class Coords {
                 throw BadCoordsException("Cannot convert rank to numeric");
             }
         }
+        // Coords(const char *s) { Coords(std::string(s)); }
 
         Coords(const Coords& c) {
             this->x = c.x;
@@ -120,14 +138,15 @@ class Coords {
             return *(new Coords(this->x - c.x, this->y - c.y));
         }
 
-        const bool operator== (const Coords& c) {
+        const bool operator== (const Coords* c) const {
+            return (this->x == c->x && this->y == c->y);
+        }
+        const bool operator== (const Coords& c) const {
             return (this->x == c.x && this->y == c.y);
         }
 
         friend std::ostream& operator<< (std::ostream& o, const Coords& c) {
-            o << "X = " << c.x << std::endl
-              << "Y = " << c.y << std::endl
-              << "  = " << c.toString();
+            o << "(" << c.x << ", " << c.y << ", " << c.toString() << ")";
 
             return o;
         }
@@ -142,6 +161,7 @@ class Coords {
         }
 
         static const T ALPHABET_SIZE = ('Z' - 'A') + 1;
+
     private:
         T x, y;
         T str2num(const char *s) const;
@@ -151,6 +171,8 @@ class Coords {
 
 template<typename T>
 T Coords<T>::str2num(const char *s) const {
+    // if (std::string(s) == "-") { return 0; }
+
     T w = 1, v = 0;
     while (*s) {
         v += (toupper(*s) - 'A' + 1) * w;
@@ -163,6 +185,8 @@ T Coords<T>::str2num(const char *s) const {
 
 template<typename T>
 std::string& Coords<T>::num2str(const T n) const {
+    // if (n == 0) return *(new std::string("-"));
+
     std::string *s = new std::string();
     s->empty();
     T q = n;
@@ -182,9 +206,9 @@ std::string& Coords<T>::num2str(const T n) const {
     return *s;
 }
 
-
 typedef Coords<uint64_t> T_COORDS_UINT_64;
 typedef Coords<int64_t> T_COORDS_INT_64;
+typedef Coords<int64_t> T_COORDS;
 
 } // namespace
 
