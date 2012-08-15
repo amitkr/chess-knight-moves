@@ -161,6 +161,13 @@ int main(int argc, char *argv[], char *argp[]) {
         }
     }
 
+    /*
+    while (*argv) {
+        std::cout << "argv:" << *argv << std::endl;
+        ++argv;
+    }
+    */
+
     std::istringstream is(to);
     std::istream_iterator <std::string> ii(is);
     std::istream_iterator <std::string> eos;
@@ -174,6 +181,10 @@ int main(int argc, char *argv[], char *argp[]) {
     std::unique_copy(b.begin(), b.end(), oo);
 
     // return !is.eof() && !os;
+    
+
+    // create a chess board
+    Chess::CHESS_BOARD *board = new Chess::CHESS_BOARD();
 
     exit(EXIT_SUCCESS);
 }
