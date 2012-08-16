@@ -35,7 +35,7 @@ namespace Chess {
             void setVertex(T k1, T k2, Weight w = 1);
 
             std::vector<T> bfs(T from, T to);
-            std::vector<T> dijkstra(T from, T to);
+            std::list<T> dijkstra(T from, T to);
 
             friend std::ostream& operator<< (std::ostream &o, const Graph<T> &g) {
                 o << "G{" << std::endl;
@@ -70,6 +70,12 @@ namespace Chess {
                 public:
                     Vertex() : visit(NotVisited), cost(1) { };
                     Vertex(T k) : key(k), visit(NotVisited), cost(1) {}
+                    Vertex(const Vertex *v) {
+                        key = v->key;
+                        visit = v->visit;
+                        cost = v->cost;
+                        edges = v->edges;
+                    }
                     Vertex(const Vertex &v) {
                         key = v.key;
                         visit = v.visit;
@@ -120,6 +126,9 @@ namespace Chess {
 
                         return o;
                     }
+                    std::string toString() const {
+                        return key.toString();
+                    }
                 private:
                     std::list<Edge> edges;
                     T key;
@@ -135,18 +144,17 @@ namespace Chess {
                 bool operator()(const Vertex *lhs, const Vertex *rhs) const {
                     return lhs->getCost() < rhs->getCost();
                 }
-                bool operator()(const Vertex &lhs, const Weight &w) const {
-                    // ERROR!
-                    return lhs.getCost() < w;
+                bool operator()(const std::string &lhs, const std::string &rhs) const {
+                    return lhs < rhs;
                 }
-                bool operator()(const Weight &w, const Vertex &rhs) const {
-                    // ERROR!
-                    return w < rhs.getCost();
+                bool operator()(const Weight &lhs, const Weight &rhs) const {
+                    return lhs < rhs;
                 }
                 bool operator()(const std::pair<Weight, Vertex> &lhs,
                         const std::pair<Weight, Vertex> &rhs) const
                 {
-                    return lhs.first < rhs.first;
+                    // return lhs.first > rhs.first;
+                    return true;
                 }
 
             };
@@ -218,39 +226,34 @@ namespace Chess {
     }
 
     /**
-     *
+     * Find the shortest path using dijkstra's algorithm
      */
     template <typename T>
-    std::vector<T> Graph<T>::dijkstra(T from, T to) {
-        std::vector<T> path;
-        path.push_back(from);
+    std::list<T> Graph<T>::dijkstra(T from, T to) {
+        std::list<T> path;
 
         Vertex *f = hasVertex(from);
-        std::cout << "From: " << *f << std::endl;
         if (!f) return path;
         Vertex *t = hasVertex(to);
         if (!t) return path;
 
-        typedef std::map<Vertex, Weight, compare> DISTANCE_T;
-        typedef std::map<Vertex, Vertex, compare> MAP_T;
+#ifdef DEBUG
+        std::cout << "From: " << *f << std::endl;
+        std::cout << "To: " << *t << std::endl;
+#endif
+
+        typedef std::map<std::string, Weight, compare> DISTANCE_T;
+        typedef std::map<std::string, std::string, compare> MAP_T;
 
         DISTANCE_T minDistance;
         MAP_T prev;
-
-        // std::cout << "Infinity = " << std::numeric_limits<double>::infinity() << std::endl;
-        // std::cout << "Infinity = " << std::numeric_limits<Weight>::infinity() << std::endl;
 
         for (typename std::list<Vertex>::const_iterator it = vertices.begin();
                 it != vertices.end();
                 ++it)
         {
             Vertex v = *it;
-            minDistance[v] = std::numeric_limits<Weight>::infinity();
-            /*
-            std::cout << "v = " << v
-                << " minDistance = " << minDistance[v]
-                << std::endl;
-            */
+            minDistance[v.toString()] = std::numeric_limits<Weight>::infinity();
 
             std::list<Edge> e = it->getEdges();
             for (typename std::list<Edge>::const_iterator eit = e.begin();
@@ -258,39 +261,28 @@ namespace Chess {
                     ++eit)
             {
                 Vertex *v2 = eit->edge;
-                minDistance[*v2] = std::numeric_limits<Weight>::infinity();
-                /*
-                std::cout << "v2 = " << *v2
-                    << " minDistance = " << minDistance[*v2]
-                    << std::endl;
-                */
+                minDistance[v2->toString()] = std::numeric_limits<Weight>::infinity();
             }
-            std::cout << "minDistance has " << minDistance.size() << " elements."
-                << std::endl;
+
         }
 
+#ifdef DEBUG
         std::cout << "minDistance has " << minDistance.size() << " elements."
             << std::endl;
+#endif
 
-        minDistance[*f] = 0;
-
-        std::cout << "v = " << *t
-            << " minDistance = " << minDistance[*t]
-            << std::endl;
-
-        std::cout << "v = " << *f
-            << " minDistance = " << minDistance[*f]
-            << std::endl;
-
+        minDistance[f->toString()] = 0;
 
         std::set<std::pair<Weight, Vertex>, compare> vq;
-        vq.insert(std::make_pair(minDistance[*f], *f));
+        vq.insert(std::make_pair(minDistance[f->toString()], *f));
 
         while(!vq.empty()) {
             Vertex c = vq.begin()->second;
             vq.erase(vq.begin());
 
+#ifdef DEBUG
             std::cout << "Processing: " << c << std::endl;
+#endif
 
             const std::list<Edge> &el = c.getEdges();
             for(typename std::list<Edge>::const_iterator it = el.begin();
@@ -299,36 +291,55 @@ namespace Chess {
             {
                 Vertex v = *(it->edge);
                 Weight w = it->weight;
-                Weight dvc = minDistance[c] + w; // distance via c
+                Weight dvc = minDistance[c.toString()] + w; // distance via c
+#ifdef DEBUG
                 std::cout << "Subprocessing: " << v
                     << " w = " << w
                     << " dvc = " << dvc
-                    << " minDistance[v] = " << minDistance[v] << std::endl;
-                if (dvc < minDistance[v]) {
-                    vq.erase(std::make_pair(minDistance[v], v));
-                    minDistance[v] = dvc;
-                    prev[v] = c;
-                    vq.insert(std::make_pair(minDistance[v], v));
+                    << " minDistance[v] = " << minDistance[v.toString()] << std::endl;
+#endif
+                if (dvc < minDistance[v.toString()]) {
+                    vq.erase(std::make_pair(minDistance[v.toString()], v));
+                    minDistance[v.toString()] = dvc;
+                    prev[v.toString()] = c.toString();
+                    vq.insert(std::make_pair(minDistance[v.toString()], v));
                 }
             }
+
+#ifdef DEBUG
+            std::cout << "Queue: ";
+            for(typename std::set<std::pair<Weight, Vertex> >::iterator it = vq.begin();
+                    it != vq.end();
+                    ++it)
+            {
+                std::cout << it->second.getKey() << ", ";
+            }
+            std::cout << std::endl;
+#endif
         }
 
+#ifdef DEBUG
+        std::cout << "prev has " << prev.size() << " elements."
+            << std::endl;
         for (typename MAP_T::const_iterator it = prev.begin();
                 it != prev.end();
                 ++it)
         {
             std::cout
-                << "(" << it->first.getKey()
-                << ", " << it->second.getKey()
+                << "(" << it->first
+                << ", " << it->second
                 << ")" << std::endl;
         }
+#endif
 
-        Vertex start = *t;
+        std::string start = t->toString();
         typename MAP_T::const_iterator it_prev;
         while((it_prev = prev.find(start)) != prev.end()) {
+            path.push_back(start);
             start = prev[start];
-            path.push_back(start.getKey());
         }
+
+        path.reverse();
 
         return path;
     }

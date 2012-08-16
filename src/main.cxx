@@ -1,16 +1,32 @@
+/*
+Copyright (c) <2012> <amitkr@rocketmail.com> http://github.com/amitkr
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include <iostream>
-#include <algorithm>
-#include <fstream>
-#include <iterator>
-#include <vector>
-#include <sstream>
 #include <stdlib.h>
 #include <getopt.h>
 #include <error.h>
 #include <errno.h>
 #include <ctype.h>
 
-#include "Board.h"
 #include "Piece.h"
 
 unsigned long ALPHABET_SIZE = ('Z' - 'A') + 1;
@@ -58,6 +74,18 @@ std::vector <std::string> split(const std::string & s, char delim) {
     return split(s, delim, e);
 }
 
+void displayHelp(char* p) {
+    std::cout<<
+        "Knights travel on chessboard" << std::endl <<
+        "Usage: " << p << " [options] --from <position> --to <position>" << std::endl <<
+        "  Options:" << std::endl <<
+        "    --from | --start | -s    <position>   - initial position of knight" << std::endl <<
+        "    --to   | --end   | -t    <position>   - end position of knight" << std::endl <<
+        "    --help | -h      | -?                 - display this help" << std::endl
+        ;
+    exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char *argv[], char *argp[]) {
     int verbose = 0;
     int help = 0;
@@ -90,14 +118,15 @@ int main(int argc, char *argv[], char *argp[]) {
 
         switch (c) {
         case 0:
-            std::cout << "option " << longOpts[optsIndex].name;
+            // std::cout << "option " << longOpts[optsIndex].name;
             if (longOpts[optsIndex].flag != 0) {
-                std::cout << std::endl;
+                // std::cout << std::endl;
                 break;
             }
+            /*
             if (optarg)
-                std::cout << " with args " << optarg << std::
-                    endl;
+                std::cout << " with args " << optarg << std::endl;
+            */
             break;
         case 'F': 
             // files = optarg;
@@ -141,21 +170,22 @@ int main(int argc, char *argv[], char *argp[]) {
             break;
         case 's':
         case 'f':
-            std::cout << "option -s " << optarg << std::endl;
+            // std::cout << "option -s " << optarg << std::endl;
             from = optarg;
             break;
         case 'e':
         case 't':
-            std::cout << "option -e " << optarg << std::endl;
+            // std::cout << "option -e " << optarg << std::endl;
             to = optarg;
             break;
         case 'v':
-            std::cout << "option -v";
+            // std::cout << "option -v";
             verbose = 1;
             break;
         case 'h':
         case '?':
-            std::cout << "help" << std::endl;
+            // std::cout << "help" << std::endl;
+            displayHelp(argv[0]);
             break;
         default:
             std::cerr << "Unknown arg" << std::endl;
@@ -163,37 +193,30 @@ int main(int argc, char *argv[], char *argp[]) {
         }
     }
 
-    /*
-    while (*argv) {
-        std::cout << "argv:" << *argv << std::endl;
-        ++argv;
-    }
-    */
-
-    std::istringstream is(to);
-    std::istream_iterator <std::string> ii(is);
-    std::istream_iterator <std::string> eos;
-
-    std::vector <std::string> b(ii, eos);
-    // std::vector <std::string> b = split(to, std::string("\n:,|;"));
-    // NOTE: eventually i'd like the string to be a list of "to" cells
-    std::sort(b.begin(), b.end());
-
-    std::ostream_iterator <std::string> oo(std::cout, "\n");
-    std::unique_copy(b.begin(), b.end(), oo);
-
-    // return !is.eof() && !os;
-    
-
     // create a chess board
     // Chess::CHESS_BOARD *board = new Chess::CHESS_BOARD();
     // Chess::Knight k(Chess::T_COORDS(std::string(" de56  ")));
     // Chess::Knight *k = new Chess::Knight(Chess::T_COORDS(std::string(from)));
     // std::cout << *k << std::endl;
     // std::cout << k->getMoves() << std::endl;
+    
+    // Can do without a board for now!
     Chess::Knight k1(from);
     Chess::T_COORDS toc = Chess::T_COORDS(to);
-    k1.findPath(toc);
+    std::list<Chess::T_COORDS> path = k1.findPath(toc);
+
+    std::cout << "From: " << Chess::T_COORDS(from) << std::endl;
+    std::cout << "To: " << toc << std::endl;
+    std::cout << "Path: ";
+    if (path.empty()) {
+        std::cout << "No path!" << std::endl;
+    } else {
+        for (std::list<Chess::T_COORDS>::const_iterator it = path.begin();
+                it != path.end(); ++it) {
+            std::cout << *it << ", ";
+        }
+        std::cout << std::endl;
+    }
 
     exit(EXIT_SUCCESS);
 }
