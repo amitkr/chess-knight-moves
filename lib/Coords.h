@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <queue>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -138,15 +139,34 @@ class Coords {
             return *(new Coords(this->x - c.x, this->y - c.y));
         }
 
+        const bool operator!= (const Coords* c) const {
+            return (this->x != c->x || this->y != c->y);
+        }
+        const bool operator!= (const Coords& c) const {
+            return (this->x != c.x || this->y != c.y);
+        }
         const bool operator== (const Coords* c) const {
             return (this->x == c->x && this->y == c->y);
         }
         const bool operator== (const Coords& c) const {
             return (this->x == c.x && this->y == c.y);
         }
+        const bool operator< (const Coords& c) const {
+            return (this->x < c.x && this->y < c.y);
+        }
+        const bool operator< (const T c) const {
+            return (this->x < c || this->y < c);
+        }
+        const bool operator> (const Coords& c) const {
+            return (this->x > c.x && this->y > c.y);
+        }
+        const bool operator> (const T c) const {
+            return (this->x > c || this->y > c);
+        }
 
         friend std::ostream& operator<< (std::ostream& o, const Coords& c) {
-            o << "(" << c.x << ", " << c.y << ", " << c.toString() << ")";
+            // o << "(" << c.x << ", " << c.y << ", " << c.toString() << ")";
+            o << "(" << c.toString() << ")";
 
             return o;
         }
@@ -209,6 +229,7 @@ std::string& Coords<T>::num2str(const T n) const {
 typedef Coords<uint64_t> T_COORDS_UINT_64;
 typedef Coords<int64_t> T_COORDS_INT_64;
 typedef Coords<int64_t> T_COORDS;
+typedef std::queue<T_COORDS> T_COORDS_QUEUE;
 
 } // namespace
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <queue>
 
 #include "Cell.h"
 #include "Color.h"
@@ -62,18 +63,70 @@ class Knight : public Piece {
         }
         ~Knight() { }
 
+        virtual std::vector<T_COORDS> findPath(T_COORDS &from, T_COORDS &to) { }
+
         // find the shortest path
-        virtual std::vector<T_COORDS> findPath(T_COORDS &from, T_COORDS &to) {
+        T_GRAPH_VECTOR gv;
+        T_COORDS_QUEUE cq;
+        bool found;
+        unsigned int depth;
+        static const unsigned int MAX_SEARCH_DEPTH = 10;
+
+        void findPaths(T_COORDS &from, T_COORDS &to) {
+            // gv.push_back(Chess::T_GRAPH_PAIR(T_COORDS(0, 0), from));
+            //
+            // a. create the possible moves from "from"
+            // b. push these into a queue and graph vector
+            // c. check if we've already found the destination "to"
+            // c. pop each move from the queue and repeat from a.
+            //
+            if (!found && depth < MAX_SEARCH_DEPTH)
+            for (K_MOVES::iterator it = moves.begin(); it != moves.end(); ++it) {
+                T_COORDS next = from + *it;
+                if (next < 1) continue;
+                cq.push(next);
+                gv.push_back(Chess::T_GRAPH_PAIR(from, next));
+
+                if (to == next) {
+                    // for (T_COORDS_QUEUE iter = cq.begin();)
+                    std::cout << "Found destination " << to << std::endl;
+                    while(!cq.empty()) {
+                        std::cout << cq.front() << " -> ";
+                        cq.pop();
+                    }
+                    std::cout << std::endl;
+
+                    // return;
+                    found = true;
+                }
+            }
+
+            if (!cq.empty()) {
+                T_COORDS e = cq.front();
+                cq.pop();
+                ++depth;
+                findPaths(e, to);
+            }
+            // return gv;
         }
 
         virtual std::vector<T_COORDS> findPath(T_COORDS &to) {
-            T_GRAPH_VECTOR gv;
-            gv.push_back(Chess::T_GRAPH_PAIR(T_COORDS(0, 0), pos));
-            for (K_MOVES::iterator it = moves.begin(); it != moves.end(); ++it) {
-                gv.push_back(Chess::T_GRAPH_PAIR(pos, (pos + *it)));
-            }
+            depth = 0;
+            found = false;
 
+            findPaths(pos, to);
             T_GRAPH g(gv);
+
+            std::cout << g << std::endl;
+
+            // std::vector<T_COORDS> path = g.dijkstra(pos, to);
+            std::vector<T_COORDS> path = g.bfs(pos, to);
+            std::cout << "Path: " << std::endl;
+            for (std::vector<T_COORDS>::const_iterator it = path.begin();
+                    it != path.end(); ++it) {
+                std::cout << *it << ", ";
+            }
+            std::cout << std::endl;
 
             std::vector<T_COORDS> vec;
             vec.push_back(pos);
@@ -109,7 +162,6 @@ class Knight : public Piece {
                 std::cout << (pos + *it) << std::endl;
 #endif
         }
-
 };
 
 
