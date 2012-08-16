@@ -12,9 +12,9 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 AC_INIT([Chess], [0.0.1], [amitkr@amitkr.net])
 AC_PREREQ(2.13)
-AM_INIT_AUTOMAKE(chess, 0.0.1)
-AM_CONFIG_HEADER(src/config.h)
-AC_CONFIG_SRCDIR([src/main.cc])
+AM_CONFIG_HEADER([lib/Graph.h])
+AC_CONFIG_SRCDIR([src/main.cxx])
+AM_INIT_AUTOMAKE([0.0.1 std-options -Wall])
 
 dnl Checks for programs.
 AC_PROG_CC

@@ -69,6 +69,13 @@ src
 `-- main.cxx
 ```
 
+
+DOCUMENTATION
+=============
+
+see `doc/html/index.html`
+
+
 Example Run
 ===========
 ```
