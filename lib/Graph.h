@@ -23,10 +23,11 @@ namespace Chess {
             typedef std::queue<GRAPH_PAIR> GRAPH_PAIR_QUEUE;
 
             explicit Graph(const GRAPH_VECTOR &v);
+            Graph() { }
 
             ~Graph() {}
 
-            void setVertex(T k1, T k2);
+            void setVertex(T k1, T k2, long w = 1);
 
             std::vector<T> bfs(T from, T to);
             std::vector<T> dijkstra(T from, T to);
@@ -49,8 +50,8 @@ namespace Chess {
               Vertex *edge;
               long weight;
               friend std::ostream& operator<< (std::ostream& o, const Edge &e) {
-                  // o << "E(" << e.edge->getKey() << ", " << e.weight << ")";
-                  o << e.edge->getKey();
+                  o << "E(" << e.edge->getKey() << ", " << e.weight << ")";
+                  // o << e.edge->getKey();
                   return o;
               }
             };
@@ -58,7 +59,7 @@ namespace Chess {
             class Vertex {
                 public:
                   Vertex(T k) : key(k), visit(NotVisited), cost(0.0) {}
-                  void setEdge(Vertex *adjacent);
+                  void setEdge(Vertex *adjacent, long w = 1);
                   const T getKey() const {
                       return key;
                   }
@@ -202,33 +203,33 @@ namespace Chess {
 
 template <typename T>
 Chess::Graph<T>::Graph (const GRAPH_VECTOR &v) {
-    typename GRAPH_VECTOR::const_iterator insert_it = v.begin ();
+    typename GRAPH_VECTOR::const_iterator it = v.begin ();
 
-    for (; insert_it != v.end (); ++insert_it) {
-        setVertex (insert_it->first, insert_it->second);
+    for (; it != v.end (); ++it) {
+        setVertex (it->first, it->second);
     }
 }
 
 template <typename T>
-void Chess::Graph<T>::setVertex(T k1, T k2) {
-    Chess::Graph<T>::Vertex * v1 = hasVertex (k1);
-    Chess::Graph<T>::Vertex * v2 = hasVertex (k2);
+void Chess::Graph<T>::setVertex(T k1, T k2, long w) {
+    Chess::Graph<T>::Vertex * v1 = hasVertex(k1);
+    Chess::Graph<T>::Vertex * v2 = hasVertex(k2);
 
     if (v1 == NULL) {
-        vertices.push_back (Vertex(k1));
-        v1 = hasVertex (k1);
+        vertices.push_back(Vertex(k1));
+        v1 = hasVertex(k1);
     }
     if (v2 == NULL) {
-        vertices.push_back (Vertex(k2));
-        v2 = hasVertex (k2);
+        vertices.push_back(Vertex(k2));
+        v2 = hasVertex(k2);
     }
 
-    assert (v1 != NULL);
-    assert (v2 != NULL);
+    assert(v1 != NULL);
+    assert(v2 != NULL);
 
     if (v1 != NULL && v2 != NULL) {
-        v1->setEdge (v2);
-        v2->setEdge (v1);
+        v1->setEdge(v2, w);
+        v2->setEdge(v1, w);
     } else {
         throw std::runtime_error ("Unknown");
     }
@@ -248,12 +249,12 @@ typename Chess::Graph<T>::Vertex* Chess::Graph<T>::hasVertex(T key) {
 }
 
 template <typename T>
-void Chess::Graph<T>::Vertex::setEdge (Chess::Graph<T>::Vertex *adjacent) {
+void Chess::Graph<T>::Vertex::setEdge (Chess::Graph<T>::Vertex *adjacent, long w) {
     if (adjacent == NULL)
         return;
 
     if (!hasEdge(adjacent->getKey())) {
-        Chess::Graph<T>::Edge e(adjacent, 1);
+        Chess::Graph<T>::Edge e(adjacent, w);
         edges.push_back(e);
     }
 }
