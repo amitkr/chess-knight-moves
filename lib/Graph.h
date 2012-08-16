@@ -417,4 +417,5 @@ bool Chess::Graph<T>::Vertex::hasEdge (const T key) {
     return false;
 }
 
+
 #endif // __CHESS_GRAPH_H

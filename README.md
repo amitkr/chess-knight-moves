@@ -34,11 +34,6 @@ Must be a list of squares through which the Knight passes, in algebraic chess
 notation. This must include the ending position, but exclude the starting
 position.
 
-Example
--------
-Test Input: A8 B7
-Expected Output: C7 B5 D6 B7
-
 
 COMPILE:
 ========
@@ -54,12 +49,25 @@ for `debug` build
 SOLUTION
 ========
 
-Piece
-+-- Knight
+Implemented using Dijkstra shortest path search algorithm.
 
-Board
-+-- ChessBoard
-
+```
+lib
+|-- Board.cxx    - not used yet
+|-- Board.h      - not used yet
+|-- Cell.cxx     - not used yet
+|-- Cell.h       - not used yet
+|-- Color.cxx    - color of the piece
+|-- Color.h
+|-- Coords.cxx   - board co-ordinates
+|-- Coords.h
+|-- Graph.cxx    - graph of the moves
+|-- Graph.h
+|-- Piece.cxx    - piece and its derived classes (Knight)
+`-- Piece.h
+src
+`-- main.cxx
+```
 
 Example Run
 ===========
@@ -68,14 +76,17 @@ $ ./main --from d3 --to h11
 From: (D3)
 To: (H11)
 Path: (E5), (F7), (G9), (H11), 
-$ ./main --from a1 --to h6
-From: (A1)
-To: (H6)
-Path: No path!
+
 $ ./main --from a1 --to g8
 From: (A1)
 To: (G8)
 Path: (B3), (C5), (D7), (E9), (G8), 
+
+$ ./main --from a8 --to b7
+From: (A8)
+To: (B7)
+Path: (C9), (B7),
+
 ```
 
 

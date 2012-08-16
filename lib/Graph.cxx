@@ -1,6 +1,5 @@
 #include "Graph.h"
 
-
 #ifdef DEBUG
 #include <cstdlib>
 
