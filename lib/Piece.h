@@ -63,11 +63,15 @@ class Knight : public Piece {
         }
         ~Knight() { }
 
-        virtual std::vector<T_COORDS> findPath(T_COORDS &from, T_COORDS &to) { }
+        virtual std::vector<T_COORDS> findPath(T_COORDS &from, T_COORDS &to) {
+            std::vector<T_COORDS> r;
+            return r;
+        }
 
         // find the shortest path
         // T_GRAPH_VECTOR gv;
         T_COORDS_QUEUE cq;
+        // T_COORDS_VECTOR npath;
         bool found;
         unsigned int depth;
         static const unsigned int MAX_SEARCH_DEPTH = 100;
@@ -89,7 +93,7 @@ class Knight : public Piece {
                 if (next < 1) continue;
                 cq.push(next);
                 // gv.push_back(Chess::T_GRAPH_PAIR(from, next));
-                g.setVertex(from, next);
+                g.setVertex(from, next, depth);
 
                 if (to == next) {
                     found = true;
@@ -100,6 +104,7 @@ class Knight : public Piece {
                 T_COORDS e = cq.front();
                 cq.pop();
                 findPaths(e, to);
+                // npath.push_back(e);
             }
             // return gv;
         }
@@ -113,8 +118,16 @@ class Knight : public Piece {
 
             std::cout << g << std::endl;
 
-            // std::vector<T_COORDS> path = g.dijkstra(pos, to);
-            std::vector<T_COORDS> path = g.bfs(pos, to);
+            /*
+            for (std::vector<T_COORDS>::const_iterator it = npath.begin();
+                    it != npath.end(); ++it) {
+                std::cout << *it << ", ";
+            }
+            std::cout << std::endl;
+            */
+
+            std::vector<T_COORDS> path = g.dijkstra(pos, to);
+            // std::vector<T_COORDS> path = g.bfs(pos, to);
             std::cout << "Path: " << std::endl;
             for (std::vector<T_COORDS>::const_iterator it = path.begin();
                     it != path.end(); ++it) {

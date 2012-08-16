@@ -230,6 +230,7 @@ typedef Coords<uint64_t> T_COORDS_UINT_64;
 typedef Coords<int64_t> T_COORDS_INT_64;
 typedef Coords<int64_t> T_COORDS;
 typedef std::queue<T_COORDS> T_COORDS_QUEUE;
+typedef std::vector<T_COORDS> T_COORDS_VECTOR;
 
 } // namespace
 
