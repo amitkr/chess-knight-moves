@@ -8,6 +8,10 @@
 #include <iostream>
 #include <stdexcept>
 #include <queue>
+#include <set>
+#include <map>
+#include <limits>
+#include <utility>
 
 #include <assert.h>
 #include "Coords.h"
@@ -21,23 +25,29 @@ namespace Chess {
             // maybe rename PAIR to NODE
             typedef std::vector<GRAPH_PAIR> GRAPH_VECTOR;
             typedef std::queue<GRAPH_PAIR> GRAPH_PAIR_QUEUE;
+            typedef double Weight;
+            typedef long Cost;
 
             explicit Graph(const GRAPH_VECTOR &v);
             Graph() { }
-
             ~Graph() {}
 
-            void setVertex(T k1, T k2, long w = 1);
+            void setVertex(T k1, T k2, Weight w = 1);
 
             std::vector<T> bfs(T from, T to);
             std::vector<T> dijkstra(T from, T to);
 
             friend std::ostream& operator<< (std::ostream &o, const Graph<T> &g) {
                 o << "G{" << std::endl;
-                for (typename std::list<Vertex>::const_iterator it = g.vertices.begin(); it != g.vertices.end(); ++it) {
+                for (typename std::list<Vertex>::const_iterator it = g.vertices.begin();
+                        it != g.vertices.end();
+                        ++it)
+                {
                     o << *it << ", " << std::endl;
                 }
                 o << "}";
+
+                return o;
             }
 
             typedef enum { Visited = 1, NotVisited = 0 } Visits;
@@ -46,9 +56,9 @@ namespace Chess {
             class Vertex;
 
             struct Edge {
-              Edge(Vertex *e, long w) : edge(e), weight(w) {}
+              Edge(Vertex *e, Weight w) : edge(e), weight(w) {}
               Vertex *edge;
-              long weight;
+              Weight weight;
               friend std::ostream& operator<< (std::ostream& o, const Edge &e) {
                   o << "E(" << e.edge->getKey() << ", " << e.weight << ")";
                   // o << e.edge->getKey();
@@ -58,51 +68,87 @@ namespace Chess {
 
             class Vertex {
                 public:
-                  Vertex(T k) : key(k), visit(NotVisited), cost(0.0) {}
-                  void setEdge(Vertex *adjacent, long w = 1);
-                  const T getKey() const {
-                      return key;
-                  }
-                  const std::list<Edge> &getEdges() const {
-                      return edges;
-                  }
-                  double getCost() const {
-                      return cost;
-                  }
-                  double setCost(double c) {
-                      cost += c;
-                  }
-                  void setVisited() {
-                      visit = Visited;
-                  }
-                  bool isVisited() const {
-                      return (visit == Visited);
-                  }
-                  void setNotVisited() {
-                      visit = NotVisited;
-                  }
-                  bool isNotVisited() const {
-                      return (visit == NotVisited);
-                  }
-                  friend std::ostream& operator<< (std::ostream &o, const Vertex &v) {
-                      o << "V[" << v.getKey() << " -> ";
-                      for (typename std::list<Edge>::const_iterator it = v.edges.begin(); it != v.edges.end(); ++it) {
-                          o << *it << ", ";
-                      }
-                      o << "]";
-                  }
+                    Vertex() : visit(NotVisited), cost(1) { };
+                    Vertex(T k) : key(k), visit(NotVisited), cost(1) {}
+                    Vertex(const Vertex &v) {
+                        key = v.key;
+                        visit = v.visit;
+                        cost = v.cost;
+                        edges = v.edges;
+                    }
+                    const Vertex& operator=(const Vertex &v) {
+                        key = v.key;
+                        visit = v.visit;
+                        cost = v.cost;
+                        edges = v.edges;
+                        return *this;
+                    }
+                    void setEdge(Vertex *adjacent, Weight w = 1);
+                    const T getKey() const {
+                        return key;
+                    }
+                    const std::list<Edge> &getEdges() const {
+                        return edges;
+                    }
+                    Cost getCost() const {
+                        return cost;
+                    }
+                    Cost setCost(Cost c) {
+                        return cost += c;
+                    }
+                    void setVisited() {
+                        visit = Visited;
+                    }
+                    bool isVisited() const {
+                        return (visit == Visited);
+                    }
+                    void setNotVisited() {
+                        visit = NotVisited;
+                    }
+                    bool isNotVisited() const {
+                        return (visit == NotVisited);
+                    }
+                    friend std::ostream& operator<< (std::ostream &o, const Vertex &v) {
+                        o << "V[" << v.getKey() << " -> ";
+                        for (typename std::list<Edge>::const_iterator it = v.edges.begin();
+                                it != v.edges.end();
+                                ++it)
+                        {
+                            o << *it << ", ";
+                        }
+                        o << "]";
+
+                        return o;
+                    }
                 private:
-                  std::list<Edge> edges;
-                  T key;
-                  Visits visit;
-                  double cost;
-                  bool hasEdge(const T key);
+                    std::list<Edge> edges;
+                    T key;
+                    Visits visit;
+                    Cost cost;
+                    bool hasEdge(const T key);
             };
 
             struct compare {
+                bool operator()(const Vertex &lhs, const Vertex &rhs) const {
+                    return lhs.getCost() < rhs.getCost();
+                }
                 bool operator()(const Vertex *lhs, const Vertex *rhs) const {
                     return lhs->getCost() < rhs->getCost();
                 }
+                bool operator()(const Vertex &lhs, const Weight &w) const {
+                    // ERROR!
+                    return lhs.getCost() < w;
+                }
+                bool operator()(const Weight &w, const Vertex &rhs) const {
+                    // ERROR!
+                    return w < rhs.getCost();
+                }
+                bool operator()(const std::pair<Weight, Vertex> &lhs,
+                        const std::pair<Weight, Vertex> &rhs) const
+                {
+                    return lhs.first < rhs.first;
+                }
+
             };
 
             std::list<Vertex> vertices;
@@ -116,6 +162,9 @@ namespace Chess {
     typedef T_GRAPH::GRAPH_VECTOR T_GRAPH_VECTOR;
 
 
+    /**
+     *
+     */
     template <typename T>
     std::vector<T> Graph<T>::bfs(T from, T to) {
         std::vector<T> path;
@@ -143,7 +192,10 @@ namespace Chess {
 
             std::list<Edge> e = c->getEdges();
 
-            for (typename std::list<Edge>::const_iterator it = e.begin(); it != e.end(); ++it) {
+            for (typename std::list<Edge>::const_iterator it = e.begin();
+                    it != e.end();
+                    ++it)
+            {
                 Vertex *o = it->edge;
 
                 if (o->isVisited()) {
@@ -165,55 +217,138 @@ namespace Chess {
         return path;
     }
 
+    /**
+     *
+     */
     template <typename T>
     std::vector<T> Graph<T>::dijkstra(T from, T to) {
         std::vector<T> path;
-
         path.push_back(from);
 
         Vertex *f = hasVertex(from);
+        std::cout << "From: " << *f << std::endl;
         if (!f) return path;
         Vertex *t = hasVertex(to);
         if (!t) return path;
 
-        std::priority_queue<Vertex*, std::deque<Vertex*>, compare> pq;
-        pq.push(f);
+        typedef std::map<Vertex, Weight, compare> DISTANCE_T;
+        typedef std::map<Vertex, Vertex, compare> MAP_T;
 
-        while(!pq.empty()) {
-            Vertex *c = pq.top();
-            pq.pop();
+        DISTANCE_T minDistance;
+        MAP_T prev;
 
-            if (!c) { return path; }
-            if (c->getKey() == to) { return path; }
+        // std::cout << "Infinity = " << std::numeric_limits<double>::infinity() << std::endl;
+        // std::cout << "Infinity = " << std::numeric_limits<Weight>::infinity() << std::endl;
 
-            std::list<Edge> e = c->getEdges();
-            for(typename std::list<Edge>::const_iterator it = e.begin(); it != e.end(); ++it) {
-                Vertex *o = it->edge;
-                if (o->isVisited()) { continue; }
-                o->setCost(o->getCost() + it->weight);
-                o->setVisited();
-                pq.push(o);
-                path.push_back(o->getKey());
+        for (typename std::list<Vertex>::const_iterator it = vertices.begin();
+                it != vertices.end();
+                ++it)
+        {
+            Vertex v = *it;
+            minDistance[v] = std::numeric_limits<Weight>::infinity();
+            /*
+            std::cout << "v = " << v
+                << " minDistance = " << minDistance[v]
+                << std::endl;
+            */
+
+            std::list<Edge> e = it->getEdges();
+            for (typename std::list<Edge>::const_iterator eit = e.begin();
+                    eit != e.end();
+                    ++eit)
+            {
+                Vertex *v2 = eit->edge;
+                minDistance[*v2] = std::numeric_limits<Weight>::infinity();
+                /*
+                std::cout << "v2 = " << *v2
+                    << " minDistance = " << minDistance[*v2]
+                    << std::endl;
+                */
             }
+            std::cout << "minDistance has " << minDistance.size() << " elements."
+                << std::endl;
+        }
+
+        std::cout << "minDistance has " << minDistance.size() << " elements."
+            << std::endl;
+
+        minDistance[*f] = 0;
+
+        std::cout << "v = " << *t
+            << " minDistance = " << minDistance[*t]
+            << std::endl;
+
+        std::cout << "v = " << *f
+            << " minDistance = " << minDistance[*f]
+            << std::endl;
+
+
+        std::set<std::pair<Weight, Vertex>, compare> vq;
+        vq.insert(std::make_pair(minDistance[*f], *f));
+
+        while(!vq.empty()) {
+            Vertex c = vq.begin()->second;
+            vq.erase(vq.begin());
+
+            std::cout << "Processing: " << c << std::endl;
+
+            const std::list<Edge> &el = c.getEdges();
+            for(typename std::list<Edge>::const_iterator it = el.begin();
+                    it != el.end();
+                    ++it)
+            {
+                Vertex v = *(it->edge);
+                Weight w = it->weight;
+                Weight dvc = minDistance[c] + w; // distance via c
+                std::cout << "Subprocessing: " << v
+                    << " w = " << w
+                    << " dvc = " << dvc
+                    << " minDistance[v] = " << minDistance[v] << std::endl;
+                if (dvc < minDistance[v]) {
+                    vq.erase(std::make_pair(minDistance[v], v));
+                    minDistance[v] = dvc;
+                    prev[v] = c;
+                    vq.insert(std::make_pair(minDistance[v], v));
+                }
+            }
+        }
+
+        for (typename MAP_T::const_iterator it = prev.begin();
+                it != prev.end();
+                ++it)
+        {
+            std::cout
+                << "(" << it->first.getKey()
+                << ", " << it->second.getKey()
+                << ")" << std::endl;
+        }
+
+        Vertex start = *t;
+        typename MAP_T::const_iterator it_prev;
+        while((it_prev = prev.find(start)) != prev.end()) {
+            start = prev[start];
+            path.push_back(start.getKey());
         }
 
         return path;
     }
-}
+
+} // namespace
 
 template <typename T>
 Chess::Graph<T>::Graph (const GRAPH_VECTOR &v) {
-    typename GRAPH_VECTOR::const_iterator it = v.begin ();
-
-    for (; it != v.end (); ++it) {
-        setVertex (it->first, it->second);
+    for (typename GRAPH_VECTOR::const_iterator it = v.begin ();
+            it != v.end();
+            ++it)
+    {
+        setVertex(it->first, it->second);
     }
 }
 
 template <typename T>
-void Chess::Graph<T>::setVertex(T k1, T k2, long w) {
-    Chess::Graph<T>::Vertex * v1 = hasVertex(k1);
-    Chess::Graph<T>::Vertex * v2 = hasVertex(k2);
+void Chess::Graph<T>::setVertex(T k1, T k2, Weight w) {
+    Chess::Graph<T>::Vertex *v1 = hasVertex(k1);
+    Chess::Graph<T>::Vertex *v2 = hasVertex(k2);
 
     if (v1 == NULL) {
         vertices.push_back(Vertex(k1));
@@ -249,7 +384,7 @@ typename Chess::Graph<T>::Vertex* Chess::Graph<T>::hasVertex(T key) {
 }
 
 template <typename T>
-void Chess::Graph<T>::Vertex::setEdge (Chess::Graph<T>::Vertex *adjacent, long w) {
+void Chess::Graph<T>::Vertex::setEdge (Chess::Graph<T>::Vertex *adjacent, Weight w) {
     if (adjacent == NULL)
         return;
 
