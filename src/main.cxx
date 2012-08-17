@@ -83,7 +83,6 @@ void displayHelp(char* p) {
         "    --to   | --end   | -t    <position>   - end position of knight" << std::endl <<
         "    --help | -h      | -?                 - display this help" << std::endl
         ;
-    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[], char *argp[]) {
@@ -186,11 +185,23 @@ int main(int argc, char *argv[], char *argp[]) {
         case '?':
             // std::cout << "help" << std::endl;
             displayHelp(argv[0]);
+            return(EXIT_SUCCESS);
             break;
         default:
             std::cerr << "Unknown arg" << std::endl;
             break;
         }
+    }
+
+    if (from.empty()) {
+        std::cerr << "--from <position> is required" << std::endl;
+        displayHelp(argv[0]);
+        return(EXIT_FAILURE);
+    }
+    if (to.empty()) {
+        std::cerr << "--to <position> is required" << std::endl;
+        displayHelp(argv[0]);
+        return(EXIT_FAILURE);
     }
 
     // create a chess board
