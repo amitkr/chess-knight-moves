@@ -81,6 +81,8 @@ class Knight : public Piece {
             if (!found && depth < MAX_SEARCH_DEPTH)
             for (K_MOVES::iterator it = moves.begin(); it != moves.end(); ++it) {
                 T_COORDS next = from + *it;
+                // TODO: these limits should be enforced by Board class which
+                // is yet to be implemented
                 if (next < 1 || next > 8) continue;
                 cq.push(next);
                 // gv.push_back(Chess::T_GRAPH_PAIR(from, next));
