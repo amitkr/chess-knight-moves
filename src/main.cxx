@@ -42,6 +42,9 @@ unsigned long str2num(char *s) {
     return value;
 }
 
+/**
+ * convert a long number to chessboard representation
+ */
 std::string& num2str(unsigned long n) {
     std::string *s = new std::string();
     s->empty();
@@ -186,7 +189,6 @@ int main(int argc, char *argv[], char *argp[]) {
             // std::cout << "help" << std::endl;
             displayHelp(argv[0]);
             return(EXIT_SUCCESS);
-            break;
         default:
             std::cerr << "Unknown arg" << std::endl;
             break;

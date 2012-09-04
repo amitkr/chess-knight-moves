@@ -76,14 +76,14 @@ class Knight : public Piece {
             // a. create the possible moves from "from"
             // b. push these into a queue and graph vector
             // c. check if we've already found the destination "to"
-            // c. pop each move from the queue and repeat from a.
+            // d. pop each move from the queue and repeat from a.
             //
             if (!found && depth < MAX_SEARCH_DEPTH)
             for (K_MOVES::iterator it = moves.begin(); it != moves.end(); ++it) {
                 T_COORDS next = from + *it;
                 // TODO: these limits should be enforced by Board class which
                 // is yet to be implemented
-                if (next < 1 || next > 8) continue;
+                // if (next < 1 || next > 8) continue;
                 cq.push(next);
                 // gv.push_back(Chess::T_GRAPH_PAIR(from, next));
                 // g.setVertex(from, next, depth);
@@ -138,7 +138,7 @@ class Knight : public Piece {
         // T_COORDS_VECTOR path;
         bool found;
         unsigned int depth;
-        static const unsigned int MAX_SEARCH_DEPTH = 1000;
+        static const unsigned int MAX_SEARCH_DEPTH = 10000;
         T_GRAPH g;
 
 
