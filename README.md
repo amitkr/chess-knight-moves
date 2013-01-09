@@ -5,7 +5,7 @@ chess-knight-moves
 PROBLEM
 =======
 
-Given a standard 8x8 chessboard, design a C++ application that accepts two
+Given a NxM chessboard, design a C++ application that accepts two
 squares identified by algebraic chess notation. The first square is the
 starting position, and the second square is the ending position. Find the
 shortest sequence of valid moves to take a Knight piece from the starting
